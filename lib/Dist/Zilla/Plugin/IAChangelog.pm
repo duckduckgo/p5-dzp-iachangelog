@@ -44,9 +44,9 @@ sub gather_files {
 
     my %decode_status = qw(
         A added
-        D removed
-        M updated
-        R updated
+        D deleted
+        M modified
+        R modified
     );
 
     my $ia_types = qr/(?:goodie|spice|fathead|longtail)/i;
