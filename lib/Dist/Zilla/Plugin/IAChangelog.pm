@@ -96,8 +96,9 @@ sub gather_files {
                     $status = 'M';
                 }
             } while $sd =~ s|/[^/]+$||;
+
             unless($id){
-                $s->log_fatal(["Failed to find share path for $sd in share_paths"]);
+                $s->log_fatal(["Failed to find to which instant answer share asset $f belongs!"]);
             }
         }
 
