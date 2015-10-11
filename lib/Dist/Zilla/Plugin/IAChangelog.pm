@@ -13,6 +13,8 @@ use YAML::XS 'Dump';
 
 use strict;
 
+no warnings 'uninitialized';
+
 has file_name => (
     is => 'ro',
     default => 'ia_changelog.yml'
@@ -76,16 +78,24 @@ sub gather_files {
         }
         elsif($file =~ m{(share/$ia_types/.+)/.+$}){
             my $sd = $1;
-            while(my ($sp, $meta_id) = each %share_paths){
-                if($sd eq $sp){
-                    $id = $meta_id;
+            # We check for exact matches, removing trailing directories in case assets
+            # in subdirectories have been modified. Note that groups of IAs like,
+            #
+            #    spice/transit/njt
+            #    spice/transit/path
+            #    spice/transit/septa
+            #
+            # should never match a path of spice/transit since it won't exists as a module.
+            do {
+                if(exists $share_paths{$sd}){
+                    $id = $share_paths{$sd};
+
                     # status for shared assets atm is always "modified" with respect to the IA
                     # since even the deletion or addition of an asset doesn't imply the same for
                     # the owning IA
                     $status = 'M';
-                    last
                 }
-            }
+            } while $sd =~ s|/[^/]+$||;
             unless($id){
                 $s->log_fatal(["Failed to find share path for $sd in share_paths"]);
             }
