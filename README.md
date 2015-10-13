@@ -2,10 +2,10 @@
 
 ## Synopsis
 
-During release, attempts to determine which instant answers have been added,
+During release, attempts to determine which Instant Answers have been added,
 modified, or deleted.  Outputs their metadata IDs and status to a YAML file.
 
-This file is used by duckpan.org to update the statuses of instant answer pages
+This file is used by duckpan.org to update the statuses of Instant Answer pages
 on the [DuckDuckHack Community Platform](https://duck.co).
 
 To activate the plugin, add the following to **dist.ini**:
