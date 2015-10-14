@@ -72,9 +72,16 @@ sub gather_files {
                 }
             }
         }
-        elsif($file =~ m{share/goodie/cheat_sheets/json/.+\.json$}){
-            my $j = decode_json(io($file)->slurp);
-            $id = $j->{id};
+        elsif($file =~ m{share/goodie/cheat_sheets/json/(.+)\.json$}){
+            if($status eq 'D'){
+                $id = $1;
+                $id =~ s/-/_/g;
+                $id .= '_cheat_sheet';
+            }
+            else{
+                my $j = decode_json(io($file)->slurp);
+                $id = $j->{id};
+            }
         }
         elsif($file =~ m{(share/$ia_types/.+)/.+$}){
             my $sd = $1;
