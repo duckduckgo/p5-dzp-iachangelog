@@ -105,9 +105,9 @@ sub gather_files {
             } while $sd =~ s|/[^/]+$||;
 
             unless($id){
-				my $msg = ["Failed to find to which instant answer share asset $file belongs!"];
+                my $msg = ["Failed to find to which instant answer share asset $file belongs!"];
                 $stats eq 'D' $s->log_debug($msg) : $s->log_fatal($msg);
-				next;
+                next;
             }
         }
 
