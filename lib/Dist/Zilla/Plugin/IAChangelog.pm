@@ -106,7 +106,7 @@ sub gather_files {
 
             unless($id){
                 my $msg = ["Failed to find to which instant answer share asset $file belongs!"];
-                $status eq 'D' $s->log_debug($msg) : $s->log_fatal($msg);
+                $status eq 'D' ? $s->log_debug($msg) : $s->log_fatal($msg);
                 next;
             }
         }
