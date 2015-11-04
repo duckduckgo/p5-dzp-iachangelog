@@ -109,10 +109,12 @@ sub gather_files {
                 $status eq 'D' ? $s->log_debug($msg) : $s->log_fatal($msg);
                 next;
             }
+            # Skip if this has been set, so we don't overwrite added/deleted 
+            next if exists $changes{$id};
         }
 
         if($id){
-            $changes{$id} = $decode_status{$status}
+            $changes{$id} = $decode_status{$status};
         }
         else{
             $s->log_debug(["No id found for $file"]);
