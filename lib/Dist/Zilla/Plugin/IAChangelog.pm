@@ -109,8 +109,8 @@ sub gather_files {
                 $status eq 'D' ? $s->log_debug($msg) : $s->log_fatal($msg);
                 next;
             }
-            # Skip if this has already been set to deleted, e.g. the entire IA has been removed
-            next if $changes{$id} eq 'deleted';
+            # Skip if this has been set, so we don't overwrite added/deleted 
+            next if exists $changes{$id};
         }
 
         if($id){
