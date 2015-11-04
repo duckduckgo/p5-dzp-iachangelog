@@ -109,10 +109,12 @@ sub gather_files {
                 $status eq 'D' ? $s->log_debug($msg) : $s->log_fatal($msg);
                 next;
             }
+            # Skip if this has already been set to deleted, e.g. the entire IA has been removed
+            next if $changes{$id} eq 'deleted';
         }
 
         if($id){
-            $changes{$id} = $decode_status{$status}
+            $changes{$id} = $decode_status{$status};
         }
         else{
             $s->log_debug(["No id found for $file"]);
