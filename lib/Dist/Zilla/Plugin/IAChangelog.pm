@@ -20,6 +20,11 @@ has file_name => (
     default => 'ia_changelog.yml'
 );
 
+has rename_threshold => (
+    is => 'ro',
+    default => 50
+);
+
 sub gather_files {
     my $s = shift;
 
@@ -41,7 +46,8 @@ sub gather_files {
 
     my $latest_tag  = (reverse(split /\s+/, `git tag -l [0-9]*`))[0];
 
-    open my $gd, "git diff $latest_tag.. --merges --name-status --diff-filter=AMDR --ignore-all-space lib/ share/ |"
+    my $rt = $s->rename_threshold;
+    open my $gd, "git diff $latest_tag.. --merges --name-status --diff-filter=AMDR --ignore-all-space --find-renames=$rt lib/ share/ |"
         or $s->log_fatal(["Failed to execute `git diff`: $!"]);
 
     my %decode_status = qw(
@@ -54,7 +60,10 @@ sub gather_files {
     my $ia_types = qr/(?:goodie|spice|fathead|longtail)/i;
     my %changes;
     while(my $x = <$gd>){
-        my ($status, $file) = split /\s+/, $x;
+        my ($status, @files) = split /\s+/, $x;
+
+        # renames have format: R% file1 file2
+        my $file = $status =~ s/^R\K\d+$// ? $files[1] : $files[0];
 
         my $id;
         if($file =~ m{lib/(DDG/$ia_types/.+)\.pm$}){
