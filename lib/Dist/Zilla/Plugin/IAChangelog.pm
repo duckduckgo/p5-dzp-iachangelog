@@ -79,6 +79,9 @@ sub gather_files {
                     }
                     $id = $ia->[0]{id};
                 }
+                else{
+                    $s->log_fatal(["Failed to look upmetadata for $m"]);
+                }
             }
         }
         elsif($file =~ m{share/goodie/cheat_sheets/json/(.+)\.json$}){
