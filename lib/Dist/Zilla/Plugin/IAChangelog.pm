@@ -75,7 +75,7 @@ sub gather_files {
             else{
                 if(my $ia = DDG::Meta::Data->get_ia(module => $m)){
                     unless(@$ia == 1){
-                        $s->log_fatal(["Multiple IDs in metadata for module $m: @$ia"]);
+                        $s->log_fatal(["Multiple IDs in metadata for module $m: " . join(', ', map { $_->{id} } @$ia)]); 
                     }
                     $id = $ia->[0]{id};
                 }
