@@ -6,6 +6,7 @@ extends 'Dist::Zilla::Plugin::Git::Tag';
 
 use YAML::XS 'Load';
 use List::Util qw{ first };
+use DDG::Meta::Data;
 
 use strict;
 use warnings;
@@ -15,22 +16,29 @@ has '+changelog' => (default => 'ia_changelog.yml');
 has '+tag_message' => (default => \&_build_tag_message, lazy => 1);
 
 sub _build_tag_message {
-	my $self = shift;
+    my $self = shift;
 
-	my $msg = $self->tag . ' was successfully released';
+    my $msg = $self->tag . ' was successfully released';
 
-	my $cl_name = $self->changelog;
-	my $cl_yaml = first { $_->name eq $cl_name } @{ $self->zilla->files };
-	unless ($cl_yaml) {
-		$self->log_fatal("WARNING: Unable to find changelog $cl_name");
+    my $cl_name = $self->changelog;
+    my $cl_yaml = first { $_->name eq $cl_name } @{ $self->zilla->files };
+    unless ($cl_yaml) {
+        $self->log_fatal("WARNING: Unable to find changelog $cl_name");
     }
 
     my $cl = eval { Load($cl_yaml->content) }
-		or $self->log_fatal("Failed to open changelog $cl_name: $@");
+        or $self->log_fatal("Failed to open changelog $cl_name: $@");
 
     my %changes;
+    my $meta = DDG::Meta::Data->by_id;
     while(my ($id, $status) = each %$cl){
-        push @{$changes{ucfirst $status}}, qq{- [$id](https://duck.co/ia/view/$id)};
+        my $id_msg = qq{- [$id](https://duck.co/ia/view/$id)};
+        if($status eq 'Added'){
+            if(my $m = $meta->{$id}{maintainer}){
+                $id_msg .= " (\@$m)";
+            }
+        }
+        push @{$changes{ucfirst $status}}, $id_msg;
     }
     if(%changes){
         $msg .= ' and contains the following changes:';
@@ -41,7 +49,7 @@ sub _build_tag_message {
         }
     }
 
-	return $msg;
+    return $msg;
 }
 
 __PACKAGE__->meta->make_immutable;
