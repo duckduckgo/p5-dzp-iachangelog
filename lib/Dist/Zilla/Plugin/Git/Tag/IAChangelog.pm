@@ -33,8 +33,8 @@ sub _build_tag_message {
     my $meta = DDG::Meta::Data->by_id;
     while(my ($id, $status) = each %$cl){
         my $id_msg = qq{- [$id](https://duck.co/ia/view/$id)};
-        if($status eq 'Added'){
-            if(my $m = $meta->{$id}{maintainer}){
+        if($status eq 'added'){
+            if(my $m = $meta->{$id}{maintainer}{github}){
                 $id_msg .= " (\@$m)";
             }
         }
