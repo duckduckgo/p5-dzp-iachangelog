@@ -73,14 +73,18 @@ sub gather_files {
                 $id = 'cheat_sheets';
             }
             else{
-                if(my $ia = DDG::Meta::Data->get_ia(module => $m)){
-                    unless(@$ia == 1){
-                        $s->log_fatal(["Multiple IDs in metadata for module $m: " . join(', ', map { $_->{id} } @$ia)]); 
+                while($m =~ /::/){
+                    if(my $ia = DDG::Meta::Data->get_ia(module => $m)){
+                        unless(@$ia == 1){
+                            $s->log_fatal(["Multiple IDs in metadata for module $m: " . join(', ', map { $_->{id} } @$ia)]); 
+                        }
+                        $id = $ia->[0]{id};
+                        last;
                     }
-                    $id = $ia->[0]{id};
-                }
-                else{
-                    $s->log_fatal(["Failed to look up metadata for $m"]);
+                    # Check if this is a child mod of an IA higher up
+                    # If it is, status is "modified" with respect to the instant answer
+                    $m =~ s/::[^:]+$//;
+                    $status = 'M';
                 }
             }
         }
@@ -115,23 +119,21 @@ sub gather_files {
                     $status = 'M';
                 }
             } while $sd =~ s|/[^/]+$||;
-
-            unless($id){
-                my $msg = ["Failed to find to which instant answer share asset $file belongs!"];
-                $status eq 'D' ? $s->log_debug($msg) : $s->log_fatal($msg);
-                next;
-            }
-            # Skip if this has been set, so we don't overwrite added/deleted 
-            next if exists $changes{$id};
+        }
+        else{
+            $s->log_debug("Uknown file type $file...skipping");
+            next;
         }
 
         if($id){
+            # Overwrite modified with anything but not other statuses
+            next unless (not exists $changes{$id}) || ($changes{$id} eq 'modified');
             $changes{$id} = $decode_status{$status};
         }
         else{
-            $s->log_debug(["No id found for $file"]);
+            my $msg = ["Failed to find to which instant answer file $file belongs!"];
+            $status eq 'D' ? $s->log_debug($msg) : $s->log_fatal($msg);
         }
-
     }
 
     my $f = Dist::Zilla::File::InMemory->new({
